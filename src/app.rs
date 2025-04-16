@@ -1,9 +1,10 @@
-use leptos::prelude::*;
+use leptos::{logging::log, prelude::*};
 use leptos_meta::{provide_meta_context, Stylesheet, Title};
 use leptos_router::{
     components::{Route, Router, Routes},
     StaticSegment, WildcardSegment,
 };
+use thaw::*;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -11,35 +12,43 @@ pub fn App() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        // injects a stylesheet into the document <head>
-        // id=leptos means cargo-leptos will hot-reload this stylesheet
-        <Stylesheet id="leptos" href="/pkg/painter_setup.css"/>
+        <ConfigProvider>
+            // injects a stylesheet into the document <head>
+            // id=leptos means cargo-leptos will hot-reload this stylesheet
+            <Stylesheet id="leptos" href="/pkg/painter_setup.css"/>
 
-        // sets the document title
-        <Title text="Welcome to Leptos"/>
+            // sets the document title
+            <Title text="Painter Setup"/>
 
-        // content for this welcome page
-        <Router>
-            <main>
-                <Routes fallback=move || "Not found.">
-                    <Route path=StaticSegment("") view=HomePage/>
-                    <Route path=WildcardSegment("any") view=NotFound/>
-                </Routes>
-            </main>
-        </Router>
+            // content for this welcome page
+            <Router>
+                <main>
+                    <Routes fallback=move || "Not found.">
+                        <Route path=StaticSegment("") view=HomePage/>
+                        <Route path=WildcardSegment("any") view=NotFound/>
+                    </Routes>
+                </main>
+            </Router>
+        </ConfigProvider>
     }
 }
 
 /// Renders the home page of your application.
 #[component]
 fn HomePage() -> impl IntoView {
-    // Creates a reactive value to update the button
-    let count = RwSignal::new(0);
-    let on_click = move |_| *count.write() += 1;
+
+    let custom_request = move |file_list: FileList| {
+        let len = file_list.length();
+        log!("{0}", len);
+    };
 
     view! {
-        <h1>"Welcome to Leptos!"</h1>
-        <button on:click=on_click>"Click Me: " {count}</button>
+        <h1>"Painter Setup"</h1>
+        <div class="ctn">
+            <Upload custom_request>
+                <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
+            </Upload>
+        </div>
     }
 }
 

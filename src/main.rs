@@ -8,6 +8,7 @@ async fn main() -> std::io::Result<()> {
     use leptos_meta::MetaTags;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use painter_setup::app::*;
+    use thaw::ssr::SSRMountStyleProvider;
 
     let conf = get_configuration(None).unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -15,7 +16,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         // Generate the list of routes in your Leptos App
         let routes = generate_route_list(App);
+
         let leptos_options = &conf.leptos_options;
+
         let site_root = leptos_options.site_root.clone().to_string();
 
         println!("listening on http://{}", &addr);
@@ -28,26 +31,34 @@ async fn main() -> std::io::Result<()> {
             // serve the favicon from /favicon.ico
             .service(favicon)
             .leptos_routes(routes, {
-                let leptos_options = leptos_options.clone();
+                
+                let opts = leptos_options.clone();
+
                 move || {
+                    
+                    let opta = opts.clone();
+                    let optb = opts.clone();
+
                     view! {
-                        <!DOCTYPE html>
-                        <html lang="en">
-                            <head>
-                                <meta charset="utf-8"/>
-                                <meta name="viewport" content="width=device-width, initial-scale=1"/>
-                                <AutoReload options=leptos_options.clone() />
-                                <HydrationScripts options=leptos_options.clone()/>
-                                <MetaTags/>
-                            </head>
-                            <body>
-                                <App/>
-                            </body>
-                        </html>
+                        <SSRMountStyleProvider>
+                            <!DOCTYPE html>
+                            <html lang="en">
+                                <head>
+                                    <meta charset="utf-8"/>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                                    <AutoReload options=opta />
+                                    <HydrationScripts options=optb />
+                                    <MetaTags/>
+                                </head>
+                                <body>
+                                    <App/>
+                                </body>
+                            </html>
+                        </SSRMountStyleProvider>
                     }
                 }
             })
-            .app_data(web::Data::new(leptos_options.to_owned()))
+            .app_data(web::Data::new(leptos_options.clone()))
         //.wrap(middleware::Compress::default())
     })
     .bind(&addr)?
@@ -67,22 +78,8 @@ async fn favicon(
     ))?)
 }
 
-#[cfg(not(any(feature = "ssr", feature = "csr")))]
+#[cfg(not(feature = "ssr"))]
 pub fn main() {
-    // no client-side main function
-    // unless we want this to work with e.g., Trunk for pure client-side testing
-    // see lib.rs for hydration function instead
-    // see optional feature `csr` instead
+    // if no SSR : nothing
 }
 
-#[cfg(all(not(feature = "ssr"), feature = "csr"))]
-pub fn main() {
-    // a client-side main function is required for using `trunk serve`
-    // prefer using `cargo leptos serve` instead
-    // to run: `trunk serve --open --features csr`
-    use painter_setup::app::*;
-
-    console_error_panic_hook::set_once();
-
-    leptos::mount_to_body(App);
-}

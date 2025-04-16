@@ -13,5 +13,8 @@ Painter Setup : An application to calculate photo ratios for a painter canvas
 
     cargo leptos watch
 
-Leptos doc : https://book.leptos.dev/getting_started/index.html
+## Docs
 
+Leptos doc : https://book.leptos.dev
+
+Thaw UI doc : https://thawui.vercel.app
