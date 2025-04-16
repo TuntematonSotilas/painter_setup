@@ -1,2 +1,17 @@
 # painter_setup
-Painter Setup
+
+Painter Setup : An application to calculate photo ratios for a painter canvas
+
+## Setup
+
+* Install Rust : https://www.rust-lang.org/tools/install
+* Install Trunk : `cargo install trunk`
+* Install wasm target : `rustup target add wasm32-unknown-unknown`
+* Install Cargo Leptos : `cargo install --locked cargo-leptos`
+
+## Run 
+
+    cargo leptos watch
+
+Leptos doc : https://book.leptos.dev/getting_started/index.html
+
