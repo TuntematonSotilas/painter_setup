@@ -4,6 +4,10 @@ Painter Setup : An application to calculate photo ratios for a painter canvas
 
 ## Setup
 
+* Install Perl : 
+Windows : https://strawberryperl.com - 
+Linux : `sudo dnf install perl`
+
 * Install Rust : https://www.rust-lang.org/tools/install
 * Install Trunk : `cargo install trunk`
 * Install wasm target : `rustup target add wasm32-unknown-unknown`
