@@ -1,4 +1,5 @@
-use leptos::{logging::log, prelude::*};
+use gloo_file::ObjectUrl;
+use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Stylesheet, Title};
 use leptos_router::{
     components::{Route, Router, Routes},
@@ -37,9 +38,15 @@ pub fn App() -> impl IntoView {
 #[component]
 fn HomePage() -> impl IntoView {
 
+    let (url, set_url) = signal("".to_string());
+
     let custom_request = move |file_list: FileList| {
-        let len = file_list.length();
-        log!("{0}", len);
+        let opt_file = file_list.get(0);
+        if let Some(file) = opt_file {
+            let file_gloo = gloo_file::File::from(file);
+            let url_gloo = ObjectUrl::from(file_gloo);
+            set_url.set(url_gloo.to_string());
+        }
     };
 
     view! {
@@ -48,6 +55,7 @@ fn HomePage() -> impl IntoView {
             <Upload custom_request>
                 <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
             </Upload>
+            <img src={url}/>
         </div>
     }
 }
