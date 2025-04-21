@@ -1,4 +1,4 @@
-use leptos::{prelude::*, task::spawn_local};
+use leptos::{logging::log, prelude::*, task::spawn_local};
 use thaw::{Card, Field, FileList, Input, Upload, UploadDragger};
 use wasm_bindgen::JsCast;
 
@@ -7,6 +7,8 @@ use wasm_bindgen::JsCast;
 pub fn HomePage() -> impl IntoView {
 
     let (img, set_img) = signal("".to_string());
+    let (ratio, set_ratio) = signal(0.);
+
     let paint_w = RwSignal::new("".to_string());
     let paint_h = RwSignal::new("".to_string());
 
@@ -23,6 +25,7 @@ pub fn HomePage() -> impl IntoView {
         }
     };
 
+    // Watch image change to set the canvas
     _ = Effect::watch(
         move || img.get(),
         move |_, _, _| {
@@ -35,7 +38,23 @@ pub fn HomePage() -> impl IntoView {
             let img_ele = document().get_element_by_id("img").unwrap();
             let img_html = img_ele.dyn_into::<web_sys::HtmlImageElement>().ok().unwrap();
             
+            let img_w = img_html.width();
+            let img_h = img_html.height();
+
+            log!("{0},{1}", img_w, img_h);
+
+            let ratio = img_w as f64 / img_h as f64;
+            
+            set_ratio.set(ratio);
+            
+            let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 20;
+            let cnv_h = (img_w as f64 / ratio).round() as u32;
+
+            canvas.set_width(win_w);
+            canvas.set_height(cnv_h);
+
             _ = context.draw_image_with_html_image_element(&img_html, 0., 0.);
+           
         },
         true,
     );
@@ -51,6 +70,10 @@ pub fn HomePage() -> impl IntoView {
                 </div>
                 <div class="home__form">
                     <Card>
+                        <Upload custom_request=file_upload >
+                            <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
+                        </Upload>
+                        <span>"Picture ratio : " {ratio}</span>
                         <div class="home__fields">
                             <Field label="Painting width">
                                 <Input value=paint_w />
@@ -59,14 +82,11 @@ pub fn HomePage() -> impl IntoView {
                                 <Input value=paint_h />
                             </Field>
                         </div>
-                        <Upload custom_request=file_upload >
-                            <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
-                        </Upload>
                     </Card>
                 </div>
             </div>
-            <div class="home__canvas">
-                <canvas id="canvas"></canvas>
+            <div>
+                <canvas id="canvas" ></canvas>
                 <img id="img" class="img" src=img />
             </div>
         </div>
