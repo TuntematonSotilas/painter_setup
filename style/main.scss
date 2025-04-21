@@ -14,12 +14,30 @@ h1 {
 	background: none;
 }
 
-.ctn {
+.home {
 	display: flex;
-    gap: 1rem;
     flex-direction: column;
-	justify-content: center;
-	align-items: center;
+    gap: 1rem;
+}
+
+.home__header {
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+}
+
+.home__title {
+	width: 30vw;
+}
+
+.home__form {
+	width: 60vw;
+}
+
+.home__fields {
+	display: flex;
+    flex-direction: row;
+    gap: 1rem;
 }
 
 .img {

@@ -1,5 +1,5 @@
 use leptos::{prelude::*, task::spawn_local};
-use thaw::{FileList, Upload, UploadDragger};
+use thaw::{Card, Field, FileList, Input, Upload, UploadDragger};
 use wasm_bindgen::JsCast;
 
 /// Renders the home page of your application.
@@ -7,6 +7,8 @@ use wasm_bindgen::JsCast;
 pub fn HomePage() -> impl IntoView {
 
     let (img, set_img) = signal("".to_string());
+    let paint_w = RwSignal::new("".to_string());
+    let paint_h = RwSignal::new("".to_string());
 
     let file_upload = move |file_list: FileList| {
         let opt_file = file_list.get(0);
@@ -39,13 +41,34 @@ pub fn HomePage() -> impl IntoView {
     );
 
     view! {
-        <h1>"Painter Setup"</h1>
-        <div class="ctn">
-            <Upload custom_request={file_upload}>
-                <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
-            </Upload>
-            <canvas id="canvas"></canvas>
-            <img id="img" class="img" src={img}/>
+        <div class="home">
+            <div class="home__header">
+                <div class="home__title">
+                    <Card>
+                        <h3>"Painter Setup"</h3>
+                        "An application to calculate photo ratios for a painter canvas"
+                    </Card>
+                </div>
+                <div class="home__form">
+                    <Card>
+                        <div class="home__fields">
+                            <Field label="Painting width">
+                                <Input value=paint_w />
+                            </Field>
+                            <Field label="Painting height">
+                                <Input value=paint_h />
+                            </Field>
+                        </div>
+                        <Upload custom_request=file_upload >
+                            <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
+                        </Upload>
+                    </Card>
+                </div>
+            </div>
+            <div class="home__canvas">
+                <canvas id="canvas"></canvas>
+                <img id="img" class="img" src=img />
+            </div>
         </div>
     }
 }
