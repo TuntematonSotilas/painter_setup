@@ -1,13 +1,18 @@
 use leptos::{logging::log, prelude::*, task::spawn_local};
-use thaw::{Card, Field, FileList, Input, Upload, UploadDragger};
-use wasm_bindgen::JsCast;
+use thaw::{Button, Card, Field, FileList, Input, Upload, UploadDragger};
+use web_sys::MouseEvent;
+use crate::services::canvas::draw_cnv;
 
 /// Renders the home page of your application.
 #[component]
 pub fn HomePage() -> impl IntoView {
 
     let (img, set_img) = signal("".to_string());
-    let (ratio, set_ratio) = signal(0.);
+    //let (ratio, set_ratio) = signal(0.);
+    let (draw_vert, set_draw_vert) = signal(false);
+    let (draw_hori, set_draw_hori) = signal(false);
+    let (lines_vert, set_lines_vert) = signal(Vec::<i32>::new());
+    let (lines_hori, set_lines_hori) = signal(Vec::<i32>::new());
 
     let paint_w = RwSignal::new("".to_string());
     let paint_h = RwSignal::new("".to_string());
@@ -26,45 +31,27 @@ pub fn HomePage() -> impl IntoView {
     };
 
     // Watch image change to set the canvas
-    _ = Effect::watch(
-        move || img.get(),
-        move |_, _, _| {
+    _ = Effect::watch(move || img.get(), move |_, _, _| {
+            draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked(), paint_h.get_untracked());
+        }, true);
 
-            let canvas_ele = document().get_element_by_id("canvas").unwrap();
-            let canvas = canvas_ele.dyn_into::<web_sys::HtmlCanvasElement>().ok().unwrap();
-            let context = canvas.get_context("2d").unwrap().unwrap()
-                .dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap();
-        
-            let img_ele = document().get_element_by_id("img").unwrap();
-            let img_html = img_ele.dyn_into::<web_sys::HtmlImageElement>().ok().unwrap();
-            
-            let img_w = img_html.natural_width();
-            let img_h = img_html.natural_height();
-
-            log!("{0},{1}", img_w, img_h);
-
-            if img_w > 0 {
-                    
-                let ratio = img_w as f64 / img_h as f64;
-                
-                log!("{0}", ratio);
-
-                set_ratio.set(ratio);
-                
-                let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 20;
-                let cnv_h = (win_w as f64 / ratio).round() as u32;
-
-                canvas.set_width(win_w);
-                canvas.set_height(cnv_h);
-
-                log!("{0},{1}", win_w, cnv_h);
-
-                _ = context.draw_image_with_html_image_element_and_dw_and_dh(&img_html, 0., 0., win_w as f64, cnv_h as f64);
-
-            }
-        },
-        true,
-    );
+    let cnv_click = move |e: MouseEvent| {
+        let mut isDraw = false;
+        if draw_vert.get() {
+            isDraw = true;
+            set_lines_vert.update(|l| l.push(e.x()));
+            set_draw_vert.set(false);
+        }
+        if draw_hori.get() {
+            isDraw = true;
+            log!("{0}", e.y());
+            set_lines_hori.update(|l| l.push(e.y()));
+            set_draw_hori.set(false);
+        }
+        if isDraw {
+            draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked(), paint_h.get_untracked());
+        }
+    };
 
     view! {
         <div class="home">
@@ -80,7 +67,7 @@ pub fn HomePage() -> impl IntoView {
                         <Upload custom_request=file_upload >
                             <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
                         </Upload>
-                        <span>"Picture ratio : " {ratio}</span>
+                        // <span>"Picture ratio : " {ratio}</span>
                         <div class="home__fields">
                             <Field label="Painting width">
                                 <Input value=paint_w />
@@ -89,11 +76,15 @@ pub fn HomePage() -> impl IntoView {
                                 <Input value=paint_h />
                             </Field>
                         </div>
+                        <div class="home__fields">
+                            <Button icon=icondata::IoAdd on_click=move |_| set_draw_vert.set(true)>"Vertical line"</Button>
+                            <Button icon=icondata::IoAdd on_click=move |_| set_draw_hori.set(true)>"Horizontal line"</Button>
+                        </div>
                     </Card>
                 </div>
             </div>
             <div>
-                <canvas id="canvas" ></canvas>
+                <canvas id="canvas" on:mousedown=move |e| cnv_click(e)></canvas>
                 <img id="img" class="img" src=img />
             </div>
         </div>
