@@ -1,7 +1,7 @@
 use leptos::{logging::log, prelude::*};
 use wasm_bindgen::JsCast;
 
-pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String, paint_h: String) {
+pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String) -> f64 {
 
     let canvas_ele = document().get_element_by_id("canvas").unwrap();
     let canvas = canvas_ele.dyn_into::<web_sys::HtmlCanvasElement>().ok().unwrap();
@@ -53,6 +53,7 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String, pai
             context.stroke();
 
         }
+        return ratio;
     }
-
+    0.
 }

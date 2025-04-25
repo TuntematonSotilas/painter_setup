@@ -1,5 +1,5 @@
 use leptos::{logging::log, prelude::*, task::spawn_local};
-use thaw::{Button, Card, Field, FileList, Input, Upload, UploadDragger};
+use thaw::{Button, Card, Field, FileList, Input, Text, Upload, UploadDragger};
 use web_sys::MouseEvent;
 use crate::services::canvas::draw_cnv;
 
@@ -15,7 +15,8 @@ pub fn HomePage() -> impl IntoView {
     let (lines_hori, set_lines_hori) = signal(Vec::<i32>::new());
 
     let paint_w = RwSignal::new("".to_string());
-    let paint_h = RwSignal::new("".to_string());
+    let (paint_h, set_paint_h) = signal(0.);
+    let (ratio, set_ratio) = signal(0.);
 
     let file_upload = move |file_list: FileList| {
         let opt_file = file_list.get(0);
@@ -32,8 +33,18 @@ pub fn HomePage() -> impl IntoView {
 
     // Watch image change to set the canvas
     _ = Effect::watch(move || img.get(), move |_, _, _| {
-            draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked(), paint_h.get_untracked());
+            let rat = draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
+            set_ratio.set(rat);
         }, true);
+
+    // Watch image change to set the canvas
+    _ = Effect::watch(move || paint_w.get(), move |pw, _, _| {
+        let ph = pw.parse::<f64>();
+        if let Ok(h) = ph {
+            log!("{0}", h);
+            set_paint_h.set(h / ratio.get_untracked());
+        }
+    }, true);
 
     let cnv_click = move |e: MouseEvent| {
         let mut isDraw = false;
@@ -49,7 +60,7 @@ pub fn HomePage() -> impl IntoView {
             set_draw_hori.set(false);
         }
         if isDraw {
-            draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked(), paint_h.get_untracked());
+            draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
         }
     };
 
@@ -73,7 +84,7 @@ pub fn HomePage() -> impl IntoView {
                                 <Input value=paint_w />
                             </Field>
                             <Field label="Painting height">
-                                <Input value=paint_h />
+                                {move || format!("{:.2}", paint_h.get())}
                             </Field>
                         </div>
                         <div class="home__fields">
