@@ -38,23 +38,30 @@ pub fn HomePage() -> impl IntoView {
             let img_ele = document().get_element_by_id("img").unwrap();
             let img_html = img_ele.dyn_into::<web_sys::HtmlImageElement>().ok().unwrap();
             
-            let img_w = img_html.width();
-            let img_h = img_html.height();
+            let img_w = img_html.natural_width();
+            let img_h = img_html.natural_height();
 
             log!("{0},{1}", img_w, img_h);
 
-            let ratio = img_w as f64 / img_h as f64;
-            
-            set_ratio.set(ratio);
-            
-            let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 20;
-            let cnv_h = (img_w as f64 / ratio).round() as u32;
+            if img_w > 0 {
+                    
+                let ratio = img_w as f64 / img_h as f64;
+                
+                log!("{0}", ratio);
 
-            canvas.set_width(win_w);
-            canvas.set_height(cnv_h);
+                set_ratio.set(ratio);
+                
+                let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 20;
+                let cnv_h = (win_w as f64 / ratio).round() as u32;
 
-            _ = context.draw_image_with_html_image_element(&img_html, 0., 0.);
-           
+                canvas.set_width(win_w);
+                canvas.set_height(cnv_h);
+
+                log!("{0},{1}", win_w, cnv_h);
+
+                _ = context.draw_image_with_html_image_element_and_dw_and_dh(&img_html, 0., 0., win_w as f64, cnv_h as f64);
+
+            }
         },
         true,
     );
