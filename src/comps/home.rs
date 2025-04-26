@@ -96,7 +96,7 @@ pub fn HomePage() -> impl IntoView {
                 </div>
             </div>
             <div>
-                <canvas id="canvas" on:mousedown=move |e| cnv_click(e)></canvas>
+                <canvas id="canvas" on:mousedown=cnv_click></canvas>
                 <img id="img" class="img" src=img on:load=move |_| img_loaded() />
             </div>
         </div>
