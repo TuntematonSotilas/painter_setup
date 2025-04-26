@@ -1,5 +1,5 @@
-use leptos::{logging::log, prelude::*, task::spawn_local};
-use thaw::{Button, Card, Field, FileList, Input, Text, Upload, UploadDragger};
+use leptos::{prelude::*, task::spawn_local};
+use thaw::{Button, Card, Field, FileList, Input, Upload, UploadDragger};
 use web_sys::MouseEvent;
 use crate::services::canvas::draw_cnv;
 
@@ -30,19 +30,16 @@ pub fn HomePage() -> impl IntoView {
             });
         }
     };
+    
+    let img_loaded = move || {
+        let rat = draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
+        set_ratio.set(rat);
+    };
 
-    // Watch image change to set the canvas
-    _ = Effect::watch(move || img.get(), move |_, _, _| {
-            let rat = draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
-            set_ratio.set(rat);
-        }, true);
-
-    // Watch image change to set the canvas
+    // Watch paint_w change to set the canvas
     _ = Effect::watch(move || paint_w.get(), move |pw, _, _| {
-        let ph = pw.parse::<f64>();
-        if let Ok(h) = ph {
-            log!("{0}", h);
-            set_paint_h.set(h / ratio.get_untracked());
+        if let Ok(w) = pw.parse::<f64>() {
+            set_paint_h.set(w / ratio.get_untracked());
         }
     }, true);
 
@@ -55,7 +52,6 @@ pub fn HomePage() -> impl IntoView {
         }
         if draw_hori.get() {
             isDraw = true;
-            log!("{0}", e.y());
             set_lines_hori.update(|l| l.push(e.y()));
             set_draw_hori.set(false);
         }
@@ -64,21 +60,18 @@ pub fn HomePage() -> impl IntoView {
         }
     };
 
+    let clear_lines = move || {
+        set_lines_hori.set(Vec::new());
+        set_lines_vert.set(Vec::new());
+        draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
+    };
+
     view! {
         <div class="home">
             <div class="home__header">
                 <div class="home__title">
                     <Card>
                         <h3>"Painter Setup"</h3>
-                        "An application to calculate photo ratios for a painter canvas"
-                    </Card>
-                </div>
-                <div class="home__form">
-                    <Card>
-                        <Upload custom_request=file_upload >
-                            <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
-                        </Upload>
-                        // <span>"Picture ratio : " {ratio}</span>
                         <div class="home__fields">
                             <Field label="Painting width">
                                 <Input value=paint_w />
@@ -87,16 +80,24 @@ pub fn HomePage() -> impl IntoView {
                                 {move || format!("{:.2}", paint_h.get())}
                             </Field>
                         </div>
+                    </Card>
+                </div>
+                <div class="home__form">
+                    <Card>
+                        <Upload custom_request=file_upload >
+                            <UploadDragger>"Click or drag a file to this area to upload"</UploadDragger>
+                        </Upload>
                         <div class="home__fields">
-                            <Button icon=icondata::IoAdd on_click=move |_| set_draw_vert.set(true)>"Vertical line"</Button>
-                            <Button icon=icondata::IoAdd on_click=move |_| set_draw_hori.set(true)>"Horizontal line"</Button>
+                            <Button icon=icondata::BiVerticalBottomRegular on_click=move |_| set_draw_vert.set(true)>"Vertical line"</Button>
+                            <Button icon=icondata::BiHorizontalLeftRegular on_click=move |_| set_draw_hori.set(true)>"Horizontal line"</Button>
+                            <Button icon=icondata::MdiBroom on_click=move |_| clear_lines()>"Clear lines"</Button>
                         </div>
                     </Card>
                 </div>
             </div>
             <div>
                 <canvas id="canvas" on:mousedown=move |e| cnv_click(e)></canvas>
-                <img id="img" class="img" src=img />
+                <img id="img" class="img" src=img on:load=move |_| img_loaded() />
             </div>
         </div>
     }

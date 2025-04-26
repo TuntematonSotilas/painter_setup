@@ -1,7 +1,7 @@
-use leptos::{logging::log, prelude::*};
+use leptos::prelude::*;
 use wasm_bindgen::JsCast;
 
-pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String) -> f64 {
+pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -> f64 {
 
     let canvas_ele = document().get_element_by_id("canvas").unwrap();
     let canvas = canvas_ele.dyn_into::<web_sys::HtmlCanvasElement>().ok().unwrap();
@@ -17,22 +17,25 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String) -> 
     if img_w > 0 {
             
         let ratio = img_w as f64 / img_h as f64;
-        
-        log!("ratio={0}", ratio);
 
-        let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 30;
-        let cnv_h = (win_w as f64 / ratio).round() as u32;
+        let mut paint_w = 0.;
+        let mut paint_h = 0.;
+        if let Ok(w) = paint_w_s.parse::<f64>() {
+            paint_w = w;
+            paint_h = w / ratio;
+        }
 
-        canvas.set_width(win_w);
+        let cnv_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 30;
+        let cnv_h = (cnv_w as f64 / ratio).round() as u32;
+
+        canvas.set_width(cnv_w);
         canvas.set_height(cnv_h);
 
-        _ = context.draw_image_with_html_image_element_and_dw_and_dh(&img_html, 0., 0., win_w as f64, cnv_h as f64);
+        _ = context.draw_image_with_html_image_element_and_dw_and_dh(&img_html, 0., 0., cnv_w as f64, cnv_h as f64);
 
         let rect = canvas.get_bounding_client_rect();
         let cnv_x = rect.left();
         let cnv_y = rect.top();
-
-        log!("cnv_x={0}, cnv_y={1}", cnv_x, cnv_y);
 
         context.set_font("12px serif");
 
@@ -42,16 +45,18 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w: String) -> 
             context.move_to(x, 0.);
             context.line_to(x, cnv_h as f64);
             context.stroke();
-            _ = context.fill_text("12", x + 2. , 10.);
+            let paint_x: f64 = x * paint_w / cnv_w as f64;
+            _ = context.fill_text(format!("{:.2}", paint_x).as_str(), x + 2. , 10.);
         }
 
         for l in lines_hori {
             let y = l as f64 - cnv_y;
             context.begin_path();
             context.move_to(0., y);
-            context.line_to(win_w as f64, y);
+            context.line_to(cnv_w as f64, y);
             context.stroke();
-
+            let paint_y: f64 = y * paint_h / cnv_h as f64;
+            _ = context.fill_text(format!("{:.2}", paint_y).as_str(), 0. , y - 4.);
         }
         return ratio;
     }
