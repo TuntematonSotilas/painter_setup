@@ -2,6 +2,12 @@
 
 Painter Setup : An application to calculate photo ratios for a painter canvas
 
+## Docs
+
+Leptos doc : https://book.leptos.dev
+
+Thaw UI doc : https://thawui.vercel.app
+
 ## Setup
 
 * Install Perl : 
@@ -14,11 +20,13 @@ Linux : `sudo dnf install perl`
 * Install Cargo Leptos : `cargo install --locked cargo-leptos`
 
 ## Run 
-
     cargo leptos watch
 
-## Docs
+## Lint
+    cargo clippy
 
-Leptos doc : https://book.leptos.dev
+## Docker
 
-Thaw UI doc : https://thawui.vercel.app
+* Build : docker build . -t painter_setup
+* Run : docker run -p 8080:80 painter_setup
+* Test : http://localhost:8080
