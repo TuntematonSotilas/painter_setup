@@ -27,7 +27,7 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
 
         let cnv_w: u32;
         let cnv_h: u32;
-        if img_w >= img_h {
+        if img_w > img_h {
             // landscape mode
             cnv_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 30;
             cnv_h = (cnv_w as f64 / ratio).round() as u32; 
