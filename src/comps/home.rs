@@ -34,10 +34,16 @@ pub fn HomePage() -> impl IntoView {
     let img_loaded = move || {
         let rat = draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
         set_ratio.set(rat);
+        let pw = paint_w.get();
+        if let Ok(w) = pw.parse::<f64>() {
+            set_paint_h.set(w / ratio.get_untracked());
+        }
     };
 
-    // Watch paint_w change to set the canvas
+    // Watch paint width change to set the paint height
     _ = Effect::watch(move || paint_w.get(), move |pw, _, _| {
+        let rat = draw_cnv(lines_vert.get_untracked(), lines_hori.get_untracked(), paint_w.get_untracked());
+        set_ratio.set(rat);
         if let Ok(w) = pw.parse::<f64>() {
             set_paint_h.set(w / ratio.get_untracked());
         }
