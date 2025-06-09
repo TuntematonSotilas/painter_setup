@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::{logging::log, prelude::*};
 use wasm_bindgen::JsCast;
 
 pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -> f64 {
@@ -27,14 +27,24 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
 
         let cnv_w: u32;
         let cnv_h: u32;
+        let win_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32;
+        let win_h = window().inner_height().unwrap().as_f64().unwrap().round() as u32;
+        
         if img_w >= img_h {
             // landscape mode
-            cnv_w = window().inner_width().unwrap().as_f64().unwrap().round() as u32 - 30;
-            cnv_h = (cnv_w as f64 / ratio).round() as u32; 
-             
+            let cnv_w_tmp = win_w - 30;
+            let cnv_h_tmp = (cnv_w_tmp as f64 / ratio).round() as u32; 
+            if cnv_h_tmp > win_h - 200 {
+                log!("toobig");
+                cnv_h = win_h - 200;
+                cnv_w = (cnv_h as f64 * ratio).round() as u32;
+            } else {
+                cnv_w = cnv_w_tmp;
+                cnv_h = cnv_h_tmp; 
+            }
         } else {
             // portait mode
-            cnv_h = window().inner_height().unwrap().as_f64().unwrap().round() as u32 - 200;
+            cnv_h = win_h - 200;
             cnv_w = (cnv_h as f64 * ratio).round() as u32;
         }
 
