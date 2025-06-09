@@ -1,4 +1,4 @@
-use leptos::{logging::log, prelude::*};
+use leptos::prelude::*;
 use wasm_bindgen::JsCast;
 
 pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -> f64 {
@@ -35,7 +35,6 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
             let cnv_w_tmp = win_w - 30;
             let cnv_h_tmp = (cnv_w_tmp as f64 / ratio).round() as u32; 
             if cnv_h_tmp > win_h - 200 {
-                log!("toobig");
                 cnv_h = win_h - 200;
                 cnv_w = (cnv_h as f64 * ratio).round() as u32;
             } else {
