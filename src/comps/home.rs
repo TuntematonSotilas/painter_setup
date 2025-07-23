@@ -14,7 +14,8 @@ pub fn HomePage() -> impl IntoView {
     let (lines_vert, set_lines_vert) = signal(Vec::<i32>::new());
     let (lines_hori, set_lines_hori) = signal(Vec::<i32>::new());
 
-    let paint_w = RwSignal::new("".to_string());
+    let paint_w: RwSignal<String> = RwSignal::new("".to_string());
+    let paint_title: RwSignal<String> = RwSignal::new("".to_string());
     let (paint_h, set_paint_h) = signal(0.);
     let (ratio, set_ratio) = signal(0.);
 
@@ -75,9 +76,13 @@ pub fn HomePage() -> impl IntoView {
     view! {
         <div class="home">
             <div class="home__header">
-                <div class="home__title">
+                <h3>"Painter Setup"</h3>
+                <div class="home__size">
                     <Card>
-                        <h3>"Painter Setup"</h3>
+                         <Field label="Painting title">
+                            <Input value=paint_title />
+                        </Field>
+                        
                         <div class="home__fields">
                             <Field label="Painting width">
                                 <Input value=paint_w />
