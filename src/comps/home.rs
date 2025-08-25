@@ -15,13 +15,19 @@ pub fn HomePage() -> impl IntoView {
     let (lines_hori, set_lines_hori) = signal(Vec::<i32>::new());
 
     let paint_w: RwSignal<String> = RwSignal::new("".to_string());
-    let paint_title: RwSignal<String> = RwSignal::new("".to_string());
+    let paint_title = signal("".to_string());
     let (paint_h, set_paint_h) = signal(0.);
     let (ratio, set_ratio) = signal(0.);
 
     let file_upload = move |file_list: FileList| {
         let opt_file = file_list.get(0);
         if let Some(file) = opt_file {
+            let mut name = file.name().replace("_", " ").replace("-", " ");
+            if let Some(idx) = name.rfind('.') {
+                name = name[..idx].to_string();
+            }
+
+            paint_title.1.set(name);
             let blob_gloo = gloo_file::Blob::from(file);
             spawn_local(async move {
                 let res = gloo_file::futures::read_as_data_url(&blob_gloo).await;

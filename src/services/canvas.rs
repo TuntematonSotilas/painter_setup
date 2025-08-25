@@ -57,6 +57,7 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
         let cnv_y = rect.top();
 
         context.set_font("12px serif");
+        context.set_fill_style_str("#969494");
 
         for l in lines_vert {
             let x = l as f64 - cnv_x;
