@@ -57,8 +57,7 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
         let cnv_y = rect.top();
 
         context.set_font("12px serif");
-        context.set_fill_style_str("#969494");
-
+        
         for l in lines_vert {
             let x = l as f64 - cnv_x;
             context.begin_path();
@@ -66,7 +65,11 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
             context.line_to(x, cnv_h as f64);
             context.stroke();
             let paint_x: f64 = x * paint_w / cnv_w as f64;
-            _ = context.fill_text(format!("{:.2}", paint_x).as_str(), x + 2. , 10.);
+            let text = format!("{:.2}", paint_x);
+            context.set_fill_style_str("#000");
+            _ = context.fill_text(text.as_str(), x + 2., 10.);
+            context.set_fill_style_str("#fff");
+            _ = context.fill_text(text.as_str(), x + 3., 11.);
         }
 
         for l in lines_hori {
@@ -76,7 +79,11 @@ pub fn draw_cnv(lines_vert: Vec<i32>, lines_hori: Vec<i32>, paint_w_s: String) -
             context.line_to(cnv_w as f64, y);
             context.stroke();
             let paint_y: f64 = y * paint_h / cnv_h as f64;
-            _ = context.fill_text(format!("{:.2}", paint_y).as_str(), 0. , y - 4.);
+            let text = format!("{:.2}", paint_y);
+            context.set_fill_style_str("#000");
+            _ = context.fill_text(text.as_str(), 0., y - 4.);
+            context.set_fill_style_str("#fff");
+            _ = context.fill_text(text.as_str(), 1., y - 3.);
         }
         return ratio;
     }
